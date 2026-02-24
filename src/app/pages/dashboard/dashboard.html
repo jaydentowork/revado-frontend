@@ -1,0 +1,85 @@
+<p-toast />
+<div class="dashboard-container">
+  <header class="top-nav">
+    <div class="logo-group">
+      <i class="pi pi-check-circle"></i>
+      <span class="app-title">Revado</span>
+      <a href="#" class="nav-link">My Tasks</a>
+    </div>
+    <div class="action-group">
+      <!-- Bind login with modal visibility -->
+      <div class="action-group">
+        @if (!isUserLoggedIn) {
+          <p-button label="Log in" (click)="isLoginVisible = true" />
+        } @else {
+          <p-button label="Sign out" severity="danger" (click)="handleSignOut()" />
+        }
+      </div>
+    </div>
+  </header>
+
+  <div class="main-workspace">
+    <aside class="task-sidebar">Sidebar goes here</aside>
+
+    <main class="task-detail">Details go here</main>
+  </div>
+</div>
+
+<p-dialog
+  header="Welcome to RevaDo"
+  [(visible)]="isLoginVisible"
+  [modal]="true"
+  [style]="{ width: '25rem' }"
+>
+  <span class="login-subtitle">
+    @if (isLoginMode) {
+      Sign in to manage your tasks.
+    } @else {
+      Create an account to get started.
+    }
+  </span>
+
+  <div class="login-form-row">
+    <label for="username" class="login-label">Username</label>
+    <input
+      pInputText
+      id="username"
+      [(ngModel)]="userNameInput"
+      class="login-input"
+      autocomplete="off"
+    />
+  </div>
+
+  <div class="login-form-row">
+    <label for="password" class="login-label">Password</label>
+    <input
+      pInputText
+      id="password"
+      type="password"
+      [(ngModel)]="passwordInput"
+      class="login-input"
+    />
+  </div>
+
+  @if (!isLoginMode) {
+    <div class="login-form-row">
+      <label for="confirmPassword" class="login-label">Confirm</label>
+      <input pInputText id="confirmPassword" type="password" class="login-input" />
+    </div>
+  }
+
+  <div class="login-footer">
+    <a class="toggle-mode-link" (click)="isLoginMode = !isLoginMode">
+      @if (isLoginMode) {
+        Don't have an account? Sign up
+      } @else {
+        Already have an account? Sign in
+      }
+    </a>
+
+    <div class="login-actions">
+      <p-button label="Cancel" severity="secondary" (click)="isLoginVisible = false" />
+      <p-button [label]="isLoginMode ? 'Sign In' : 'Sign Up'" (click)="onSubmit()" />
+    </div>
+  </div>
+</p-dialog>

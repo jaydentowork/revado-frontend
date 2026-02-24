@@ -1,0 +1,98 @@
+:host {
+  --header-height: 64px;
+  --sidebar-width: 340px;
+  --border-color: #e2e8f0;
+  --bg-sidebar: #f8fafc;
+}
+
+.dashboard-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-nav {
+  height: var(--header-height);
+  border-bottom: 1px solid var(--border-color);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+}
+
+.main-workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.task-sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.task-detail {
+  flex: 1;
+  padding: 2rem 3rem;
+  overflow-y: auto;
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  color: #10b981;
+  gap: 1rem;
+}
+
+.logo-group .pi-check-circle {
+  font-size: 1.5rem;
+}
+
+.app-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #10b981;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #10b981;
+  font-weight: 600;
+  margin-left: 1rem;
+}
+
+/* Login Modal */
+.login-subtitle {
+  display: block;
+  color: grey;
+  margin-bottom: 1.5rem;
+}
+
+.login-form-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.login-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.toggle-mode-link {
+  color: #3b82f6; /* RevaDo Blue */
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline; /* Forces the line to always appear */
+  text-decoration-color: #3b82f6; /* Explicitly colors the line blue */
+  text-underline-offset: 4px; /* A pro-tip: drops the line slightly below the text for a cleaner look */
+}
