@@ -8,10 +8,11 @@ import { AuthRequest } from '../../models/auth.model';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TodoService } from '../../services/todo';
-import { Todo } from '../../models/todo.model';
+import { Subtask, Todo } from '../../models/todo.model';
 import { CardModule } from 'primeng/card';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { SubtaskService } from '../../services/subtask';
 @Component({
   selector: 'app-dashboard',
   imports: [
@@ -41,14 +42,22 @@ export class Dashboard {
   isSavingTask = false;
   isDeletingTask = false;
   isCreatingTask = false;
+  isAddingSubtask = false;
+  isGeneratingSubtasksAi = false;
+  newSubtaskTitle = '';
   private tasksSubscription?: Subscription;
   private updateTaskSubscription?: Subscription;
   private deleteTaskSubscription?: Subscription;
   private createTaskSubscription?: Subscription;
+  private createSubtaskSubscription?: Subscription;
+  private aiSubtaskSubscription?: Subscription;
+  private subtaskUpdatingIds = new Set<string>();
+  private subtaskDeletingIds = new Set<string>();
   constructor(
     private authService: AuthService,
     private messageService: MessageService,
     private todoService: TodoService,
+    private subtaskService: SubtaskService,
     private cdr: ChangeDetectorRef,
   ) {
     this.authService.isLoggedIn$.subscribe((loggedIn) => {
@@ -62,10 +71,17 @@ export class Dashboard {
         this.updateTaskSubscription?.unsubscribe();
         this.deleteTaskSubscription?.unsubscribe();
         this.createTaskSubscription?.unsubscribe();
+        this.aiSubtaskSubscription?.unsubscribe();
         this.selectedFilter = 'All';
         this.tasks = [];
         this.selectedTask = null;
         this.selectedTaskDraft = null;
+        this.newSubtaskTitle = '';
+        this.isAddingSubtask = false;
+        this.isGeneratingSubtasksAi = false;
+        this.createSubtaskSubscription?.unsubscribe();
+        this.subtaskUpdatingIds.clear();
+        this.subtaskDeletingIds.clear();
         this.cdr.detectChanges();
       }
     });
@@ -189,6 +205,143 @@ export class Dashboard {
     });
   }
 
+  addSubtask() {
+    const todoId = this.selectedTaskDraft?.id;
+    const title = this.newSubtaskTitle.trim();
+
+    if (!todoId || !title || this.isAddingSubtask) return;
+
+    this.isAddingSubtask = true;
+    this.createSubtaskSubscription?.unsubscribe();
+    this.createSubtaskSubscription = this.subtaskService
+      .createSubtask(todoId, { title, completed: false })
+      .subscribe({
+        next: (createdSubtask) => {
+          if (!this.selectedTaskDraft) {
+            this.isAddingSubtask = false;
+            return;
+          }
+
+          this.selectedTaskDraft.subtaskList = [...(this.selectedTaskDraft.subtaskList ?? []), createdSubtask];
+          this.syncSelectedTaskFromDraft();
+          this.newSubtaskTitle = '';
+          this.isAddingSubtask = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Could not create subtask',
+          });
+          this.isAddingSubtask = false;
+        },
+      });
+  }
+
+  generateSubtasksWithAi() {
+    const todoId = this.selectedTaskDraft?.id;
+    if (!todoId || this.isGeneratingSubtasksAi) return;
+
+    this.isGeneratingSubtasksAi = true;
+    this.aiSubtaskSubscription?.unsubscribe();
+    this.aiSubtaskSubscription = this.subtaskService.createSubtasksWithAi(todoId).subscribe({
+      next: (generatedSubtasks) => {
+        if (!this.selectedTaskDraft) {
+          this.isGeneratingSubtasksAi = false;
+          return;
+        }
+
+        this.selectedTaskDraft.subtaskList = (generatedSubtasks ?? []).map((subtask) => ({ ...subtask }));
+        this.syncSelectedTaskFromDraft();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Generated',
+          detail: 'Subtasks generated with AI.',
+        });
+        this.isGeneratingSubtasksAi = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Could not generate subtasks',
+        });
+        this.isGeneratingSubtasksAi = false;
+      },
+    });
+  }
+
+  saveSubtask(subtask: Subtask) {
+    const subtaskId = subtask.id;
+    if (!subtaskId || this.subtaskUpdatingIds.has(subtaskId)) return;
+
+    this.subtaskUpdatingIds.add(subtaskId);
+    this.subtaskService
+      .updateSubtask(subtaskId, {
+        title: (subtask.title ?? '').trim(),
+        completed: !!subtask.completed,
+      })
+      .subscribe({
+        next: (updatedSubtask) => {
+          if (this.selectedTaskDraft?.subtaskList) {
+            this.selectedTaskDraft.subtaskList = this.selectedTaskDraft.subtaskList.map((current) =>
+              current.id === subtaskId ? { ...current, ...updatedSubtask } : current,
+            );
+            this.syncSelectedTaskFromDraft();
+          }
+          this.subtaskUpdatingIds.delete(subtaskId);
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Could not update subtask',
+          });
+          this.subtaskUpdatingIds.delete(subtaskId);
+        },
+      });
+  }
+
+  deleteSubtask(subtaskId: string) {
+    if (!subtaskId || this.subtaskDeletingIds.has(subtaskId)) return;
+
+    const isConfirmed = window.confirm('Are you sure you want to delete this subtask?');
+    if (!isConfirmed) return;
+
+    this.subtaskDeletingIds.add(subtaskId);
+    this.subtaskService.deleteSubtask(subtaskId).subscribe({
+      next: () => {
+        if (this.selectedTaskDraft?.subtaskList) {
+          this.selectedTaskDraft.subtaskList = this.selectedTaskDraft.subtaskList.filter(
+            (subtask) => subtask.id !== subtaskId,
+          );
+          this.syncSelectedTaskFromDraft();
+        }
+        this.subtaskDeletingIds.delete(subtaskId);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Could not delete subtask',
+        });
+        this.subtaskDeletingIds.delete(subtaskId);
+      },
+    });
+  }
+
+  isSubtaskUpdating(subtaskId: string) {
+    return this.subtaskUpdatingIds.has(subtaskId);
+  }
+
+  isSubtaskDeleting(subtaskId: string) {
+    return this.subtaskDeletingIds.has(subtaskId);
+  }
+
   saveSelectedTask() {
     if (!this.selectedTaskDraft || !this.selectedTaskDraft.id) return;
 
@@ -263,5 +416,13 @@ export class Dashboard {
       subtaskList: (task.subtaskList ?? []).map((subtask) => ({ ...subtask })),
       user: task.user ?? null,
     };
+  }
+
+  private syncSelectedTaskFromDraft() {
+    if (!this.selectedTaskDraft?.id) return;
+
+    const syncedTask = this.toTaskDraft(this.selectedTaskDraft);
+    this.selectedTask = syncedTask;
+    this.tasks = this.tasks.map((task) => (task.id === syncedTask.id ? this.toTaskDraft(syncedTask) : task));
   }
 }

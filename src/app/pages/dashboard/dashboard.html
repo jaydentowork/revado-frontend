@@ -130,12 +130,51 @@
 
         <div class="subtask-section">
           <h3>Subtasks</h3>
+          <div class="add-subtask-row">
+            <input
+              pInputText
+              [(ngModel)]="newSubtaskTitle"
+              placeholder="New subtask title"
+              class="subtask-title-input"
+            />
+            <p-button
+              label="Add"
+              icon="pi pi-plus"
+              [loading]="isAddingSubtask"
+              [disabled]="isAddingSubtask || isGeneratingSubtasksAi || !newSubtaskTitle.trim()"
+              (click)="addSubtask()"
+            />
+            <p-button
+              label="Generate with AI"
+              icon="pi pi-bolt"
+              severity="secondary"
+              [loading]="isGeneratingSubtasksAi"
+              [disabled]="isGeneratingSubtasksAi || isAddingSubtask"
+              (click)="generateSubtasksWithAi()"
+            />
+          </div>
+
           @if (selectedTaskDraft.subtaskList && selectedTaskDraft.subtaskList.length > 0) {
             <ul class="subtask-list-detail">
               @for (subtask of selectedTaskDraft.subtaskList; track subtask.id) {
                 <li class="subtask-row">
-                  <input type="checkbox" [checked]="subtask.completed" disabled />
-                  <span [class.line-through]="subtask.completed">{{ subtask.title }}</span>
+                  <input type="checkbox" [(ngModel)]="subtask.completed" />
+                  <input pInputText [(ngModel)]="subtask.title" class="subtask-title-input" />
+                  <p-button
+                    label="Save"
+                    size="small"
+                    [loading]="isSubtaskUpdating(subtask.id)"
+                    [disabled]="isSubtaskUpdating(subtask.id) || isSubtaskDeleting(subtask.id)"
+                    (click)="saveSubtask(subtask)"
+                  />
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    size="small"
+                    [loading]="isSubtaskDeleting(subtask.id)"
+                    [disabled]="isSubtaskUpdating(subtask.id) || isSubtaskDeleting(subtask.id)"
+                    (click)="deleteSubtask(subtask.id)"
+                  />
                 </li>
               }
             </ul>

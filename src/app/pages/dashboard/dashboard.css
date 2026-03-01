@@ -121,11 +121,24 @@
   padding: 0;
 }
 
+.add-subtask-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.5rem 0 0.8rem;
+}
+
 .subtask-row {
   display: flex;
   align-items: center;
   gap: 0.6rem;
   margin-bottom: 0.5rem;
+}
+
+.subtask-title-input {
+  flex: 1;
+  min-width: 0;
 }
 
 .muted-text {
