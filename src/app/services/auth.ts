@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import { AuthRequest } from '../models/auth.model';
 import { environment } from '../../environments/environment.development';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { AuthResponse } from '../models/auth.model';
 import { BehaviorSubject } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
-
 @Injectable({
   providedIn: 'root',
 })

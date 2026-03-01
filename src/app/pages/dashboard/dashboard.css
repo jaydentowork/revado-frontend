@@ -42,6 +42,103 @@
   overflow-y: auto;
 }
 
+.sidebar-actions {
+  margin-bottom: 1rem;
+}
+
+.task-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.task-status-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.task-status-completed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.task-status-incompleted {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.detail-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.todo-id {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.detail-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.detail-input,
+.detail-textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.95rem;
+}
+
+.detail-textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.detail-checkbox-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.subtask-section {
+  margin-top: 1.25rem;
+}
+
+.subtask-list-detail {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+
+.subtask-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.muted-text {
+  color: #64748b;
+}
+
+.detail-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
 .logo-group {
   display: flex;
   align-items: center;
@@ -95,4 +192,45 @@
   text-decoration: underline; /* Forces the line to always appear */
   text-decoration-color: #3b82f6; /* Explicitly colors the line blue */
   text-underline-offset: 4px; /* A pro-tip: drops the line slightly below the text for a cleaner look */
+}
+
+.task-details-pane {
+  flex: 1;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  overflow-y: auto;
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.full-description {
+  font-size: 1.1rem;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.empty-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #94a3b8;
 }

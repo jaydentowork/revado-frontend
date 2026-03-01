@@ -1,5 +1,6 @@
 <p-toast />
 <div class="dashboard-container">
+  <!-- Header -->
   <header class="top-nav">
     <div class="logo-group">
       <i class="pi pi-check-circle"></i>
@@ -18,10 +19,148 @@
     </div>
   </header>
 
+  <!-- Sidebar -->
   <div class="main-workspace">
-    <aside class="task-sidebar">Sidebar goes here</aside>
+    <aside class="task-sidebar">
+      <div class="filter-container">
+        <div class="sidebar-actions">
+          <p-button label="Add Todo" icon="pi pi-plus" [loading]="isCreatingTask" (click)="createTodo()" />
+        </div>
 
-    <main class="task-detail">Details go here</main>
+        <button
+          class="filter-pill"
+          [class.active]="selectedFilter === 'All'"
+          (click)="onFilterChange('All')"
+        >
+          All
+        </button>
+
+        <button
+          class="filter-pill"
+          [class.active]="selectedFilter === 'Incompleted'"
+          (click)="onFilterChange('Incompleted')"
+        >
+          Incompleted
+        </button>
+
+        <button
+          class="filter-pill"
+          [class.active]="selectedFilter === 'Completed'"
+          (click)="onFilterChange('Completed')"
+        >
+          Completed
+        </button>
+        <div class="task-list">
+          @for (task of tasks; track task.id) {
+            <p-card
+              [style]="{ 'margin-bottom': '1rem', cursor: 'pointer' }"
+              (click)="selectTask(task)"
+            >
+              <div class="task-card-header">
+                <h3>{{ task.title || '(No title)' }}</h3>
+                <span
+                  class="task-status-tag"
+                  [ngClass]="task.completed ? 'task-status-completed' : 'task-status-incompleted'"
+                >
+                  {{ task.completed ? 'Completed' : 'Incompleted' }}
+                </span>
+              </div>
+
+              <p class="task-desc">{{ task.description || '(No description)' }}</p>
+
+              @if (task.subtaskList && task.subtaskList.length > 0) {
+                <ul class="subtask-list">
+                  @for (sub of task.subtaskList; track sub.id) {
+                    <li>
+                      <i class="pi" [ngClass]="sub.completed ? 'pi-check-circle' : 'pi-circle'"></i>
+                      <span [class.line-through]="sub.completed">{{ sub.title }}</span>
+                    </li>
+                  }
+                </ul>
+              }
+            </p-card>
+          } @empty {
+            @if (!isUserLoggedIn) {
+              <p class="empty-msg">Please login to view your todo list</p>
+            } @else {
+              <p class="empty-msg">No tasks found. Time to relax! ☕</p>
+            }
+          }
+        </div>
+      </div>
+    </aside>
+
+    <main class="task-detail">
+      @if (!isUserLoggedIn) {
+        Please login to view your todo list
+      } @else if (!selectedTaskDraft) {
+        <div class="empty-selection">Select a todo from the sidebar to view details.</div>
+      } @else {
+        <div class="detail-header">
+          <h2>Todo Details</h2>
+          <span class="todo-id">ID: {{ selectedTaskDraft.id }}</span>
+        </div>
+
+        <div class="detail-form-group">
+          <label for="detail-title">Title</label>
+          <input
+            id="detail-title"
+            pInputText
+            [(ngModel)]="selectedTaskDraft.title"
+            placeholder="Enter title"
+            class="detail-input"
+          />
+        </div>
+
+        <div class="detail-form-group">
+          <label for="detail-description">Description</label>
+          <textarea
+            id="detail-description"
+            [(ngModel)]="selectedTaskDraft.description"
+            rows="4"
+            class="detail-textarea"
+            placeholder="Enter description"
+          ></textarea>
+        </div>
+
+        <div class="detail-form-group detail-checkbox-row">
+          <input id="detail-completed" type="checkbox" [(ngModel)]="selectedTaskDraft.completed" />
+          <label for="detail-completed">Completed</label>
+        </div>
+
+        <div class="subtask-section">
+          <h3>Subtasks</h3>
+          @if (selectedTaskDraft.subtaskList && selectedTaskDraft.subtaskList.length > 0) {
+            <ul class="subtask-list-detail">
+              @for (subtask of selectedTaskDraft.subtaskList; track subtask.id) {
+                <li class="subtask-row">
+                  <input type="checkbox" [checked]="subtask.completed" disabled />
+                  <span [class.line-through]="subtask.completed">{{ subtask.title }}</span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="muted-text">No subtasks for this todo.</p>
+          }
+        </div>
+
+        <div class="detail-actions">
+          <p-button
+            label="Delete"
+            severity="danger"
+            [loading]="isDeletingTask"
+            [disabled]="isSavingTask || isDeletingTask"
+            (click)="deleteSelectedTask()"
+          />
+          <p-button
+            label="Save Changes"
+            [loading]="isSavingTask"
+            [disabled]="isSavingTask || isDeletingTask"
+            (click)="saveSelectedTask()"
+          />
+        </div>
+      }
+    </main>
   </div>
 </div>
 
