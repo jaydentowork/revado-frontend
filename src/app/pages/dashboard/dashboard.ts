@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 import { AuthService } from '../../services/auth';
 import { FormsModule } from '@angular/forms';
 import { AuthRequest } from '../../models/auth.model';
@@ -21,6 +22,7 @@ import { SubtaskService } from '../../services/subtask';
     DialogModule,
     InputTextModule,
     FormsModule,
+    TextareaModule,
     ToastModule,
     CardModule,
   ],
@@ -222,7 +224,10 @@ export class Dashboard {
             return;
           }
 
-          this.selectedTaskDraft.subtaskList = [...(this.selectedTaskDraft.subtaskList ?? []), createdSubtask];
+          this.selectedTaskDraft.subtaskList = [
+            ...(this.selectedTaskDraft.subtaskList ?? []),
+            createdSubtask,
+          ];
           this.syncSelectedTaskFromDraft();
           this.newSubtaskTitle = '';
           this.isAddingSubtask = false;
@@ -252,7 +257,9 @@ export class Dashboard {
           return;
         }
 
-        this.selectedTaskDraft.subtaskList = (generatedSubtasks ?? []).map((subtask) => ({ ...subtask }));
+        this.selectedTaskDraft.subtaskList = (generatedSubtasks ?? []).map((subtask) => ({
+          ...subtask,
+        }));
         this.syncSelectedTaskFromDraft();
         this.messageService.add({
           severity: 'success',
@@ -286,8 +293,8 @@ export class Dashboard {
       .subscribe({
         next: (updatedSubtask) => {
           if (this.selectedTaskDraft?.subtaskList) {
-            this.selectedTaskDraft.subtaskList = this.selectedTaskDraft.subtaskList.map((current) =>
-              current.id === subtaskId ? { ...current, ...updatedSubtask } : current,
+            this.selectedTaskDraft.subtaskList = this.selectedTaskDraft.subtaskList.map(
+              (current) => (current.id === subtaskId ? { ...current, ...updatedSubtask } : current),
             );
             this.syncSelectedTaskFromDraft();
           }
@@ -423,6 +430,8 @@ export class Dashboard {
 
     const syncedTask = this.toTaskDraft(this.selectedTaskDraft);
     this.selectedTask = syncedTask;
-    this.tasks = this.tasks.map((task) => (task.id === syncedTask.id ? this.toTaskDraft(syncedTask) : task));
+    this.tasks = this.tasks.map((task) =>
+      task.id === syncedTask.id ? this.toTaskDraft(syncedTask) : task,
+    );
   }
 }

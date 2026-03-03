@@ -24,32 +24,31 @@
     <aside class="task-sidebar">
       <div class="filter-container">
         <div class="sidebar-actions">
-          <p-button label="Add Todo" icon="pi pi-plus" [loading]="isCreatingTask" (click)="createTodo()" />
+          <p-button
+            label="Add Todo"
+            icon="pi pi-plus"
+            [loading]="isCreatingTask"
+            (click)="createTodo()"
+          />
         </div>
 
-        <button
-          class="filter-pill"
-          [class.active]="selectedFilter === 'All'"
-          (click)="onFilterChange('All')"
-        >
-          All
-        </button>
-
-        <button
-          class="filter-pill"
-          [class.active]="selectedFilter === 'Incompleted'"
-          (click)="onFilterChange('Incompleted')"
-        >
-          Incompleted
-        </button>
-
-        <button
-          class="filter-pill"
-          [class.active]="selectedFilter === 'Completed'"
-          (click)="onFilterChange('Completed')"
-        >
-          Completed
-        </button>
+        <div class="filter-buttons">
+          <p-button
+            label="All"
+            [outlined]="selectedFilter !== 'All'"
+            (onClick)="onFilterChange('All')"
+          />
+          <p-button
+            label="Incompleted"
+            [outlined]="selectedFilter !== 'Incompleted'"
+            (onClick)="onFilterChange('Incompleted')"
+          />
+          <p-button
+            label="Completed"
+            [outlined]="selectedFilter !== 'Completed'"
+            (onClick)="onFilterChange('Completed')"
+          />
+        </div>
         <div class="task-list">
           @for (task of tasks; track task.id) {
             <p-card
@@ -83,7 +82,7 @@
             @if (!isUserLoggedIn) {
               <p class="empty-msg">Please login to view your todo list</p>
             } @else {
-              <p class="empty-msg">No tasks found. Time to relax! ☕</p>
+              <p class="empty-msg">No tasks found!</p>
             }
           }
         </div>
@@ -115,6 +114,7 @@
         <div class="detail-form-group">
           <label for="detail-description">Description</label>
           <textarea
+            pInputTextarea
             id="detail-description"
             [(ngModel)]="selectedTaskDraft.description"
             rows="4"
